@@ -1,0 +1,24 @@
+
+.clinerules/byterover-rules.md
+.kilocode/rules/byterover-rules.md
+.roo/rules/byterover-rules.md
+.windsurf/rules/byterover-rules.md
+.cursor/rules/byterover-rules.mdc
+.kiro/steering/byterover-rules.md
+.qoder/rules/byterover-rules.md
+.augment/rules/byterover-rules.md
+# Ignorar arquivos de configuração sensíveis
+.env
+.env.*
+!.env.example
+
+# Cache e artefatos comuns
+*.log
+*.tmp
+node_modules/
+dist/
+build/
+
+# Imagens geradas ou temporárias
+.DS_Store
+Thumbs.db
