@@ -1,39 +1,76 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Metadados básicos e codificação -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="index, follow">
+    
+    <!-- SEO básico -->
+    <title>Genesis Tecnologia - Sistema de Gestão Empresarial</title>
     <meta name="description" content="Zeus, o sistema de gestão da Genesis Tecnologia: financeiro, vendas, estoque, CRM e relatórios. Performance, segurança e suporte especializado.">
+    <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://www.genesisenterprise.com.br/">
+    
+    <!-- Open Graph (Redes Sociais) -->
     <meta property="og:locale" content="pt_BR">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Genesis Tecnologia - Sistema Zeus de Gestão">
     <meta property="og:description" content="Sistema completo de gestão empresarial: financeiro, vendas, estoque, CRM e relatórios.">
     <meta property="og:url" content="https://www.genesisenterprise.com.br/">
     <meta property="og:image" content="https://www.genesisenterprise.com.br/imagem/Banner home.png">
+    
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Genesis Tecnologia - Sistema Zeus de Gestão">
     <meta name="twitter:description" content="Sistema completo de gestão empresarial com performance e segurança.">
     <meta name="twitter:image" content="https://www.genesisenterprise.com.br/imagem/Banner home.png">
-    <title>Genesis Tecnologia - Sistema de Gestão Empresarial</title>
+    
+    <!-- Ícone e recursos -->
     <link rel="icon" href="imagem/infinito_genesis.png" type="image/png">
+    <link rel="preload" as="image" href="imagem/Banner home.png">
+    
+    <!-- Pré-conexões para CDNs -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    
+    <!-- Fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Heebo:wght@100..900&family=Nova+Square&family=Satisfy&family=TikTok+Sans:opsz,wght@12..36,300..900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos externos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Heebo:wght@100..900&family=Nova+Square&family=Satisfy&family=TikTok+Sans:opsz,wght@12..36,300..900&display=swap" rel="stylesheet">
-    <link rel="preload" as="image" href="imagem/Banner home.png">
+    
+    <!-- Estilo principal -->
     <link rel="stylesheet" href="estilo/css/style.css">
+    
+    <!-- Scripts de inicialização -->
+    <script>
+        (function() {
+            var d = document.documentElement;
+            function r() {
+                try {
+                    return localStorage.getItem('theme');
+                } catch(e) {
+                    var m = document.cookie.match(/(?:^|; )theme=([^;]+)/);
+                    return m && decodeURIComponent(m[1]);
+                }
+            }
+            var p = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            var t = r() || p;
+            d.setAttribute('data-theme', t);
+        })();
+    </script>
+    
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NBM6FZZ1V2"></script>
     <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);} 
-    gtag('js', new Date());
-    gtag('config', 'G-NBM6FZZ1V2');
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-NBM6FZZ1V2');
     </script>
 </head>
 <body>
@@ -49,11 +86,11 @@
             </a>
             
             <nav class="nav">
-                <button class="menu-toggle" aria-label="Abrir menu">
+                <button class="menu-toggle" aria-label="Abrir menu" aria-controls="primary-nav" aria-expanded="false" aria-haspopup="true">
                     <i class="fas fa-bars"></i>
                 </button>
                 
-                <ul class="nav-list">
+                <ul class="nav-list" id="primary-nav">
                     <li><a href="index.html" class="active">Home</a></li>
                     <li><a href="templat/sobre.html">Sobre</a></li>
                     <li><a href="templat/sistema.html">Sistema</a></li>
@@ -78,7 +115,7 @@
                     <a href="#sistema" class="btn btn-primary animate-fade-in">Conheça o sistema</a>
                 </div>
                 <div class="hero-image animate-slide-in">
-                    <img src="imagem/Banner home.png" alt="Dashboard Zeus Gestão" fetchpriority="high" decoding="async">
+                    <img src="imagem/Banner_home.png" alt="Dashboard Zeus Gestão" fetchpriority="high" decoding="async">
                 </div>
             </div>
         </section>
@@ -122,7 +159,7 @@
             <div class="container">
                 <div class="about-image animate-slide-in">
                     <div class="about-grid">
-                        <img src="imagem/Sobre nos.png" alt="Nossa empresa" loading="lazy" decoding="async">
+                        <img src="imagem/Sobre_nos.png" alt="Nossa empresa" loading="lazy" decoding="async">
                         <span class="tile tile-1"></span>
                         <span class="tile tile-2"></span>
                         <span class="tile tile-3"></span>
@@ -164,7 +201,7 @@
                 <div class="system-content">
                     <div class="system-image animate-slide-in">
                         <div class="system-grid">
-                            <img src="imagem/Sobre zeus.png" alt="Sistema Zeus" loading="lazy" decoding="async">
+                            <img src="imagem/Sobre_zeus.png" alt="Sistema Zeus" loading="lazy" decoding="async">
                             <span class="sys-tile sys-t1"></span>
                             <span class="sys-tile sys-t2"></span>
                             <span class="sys-tile sys-t3"></span>

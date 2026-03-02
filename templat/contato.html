@@ -20,6 +20,7 @@
     <link rel="icon" href="../imagem/infinito_genesis.png" type="image/png">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <script>(function(){var d=document.documentElement;function r(){try{return localStorage.getItem('theme');}catch(e){var m=document.cookie.match(/(?:^|; )theme=([^;]+)/);return m&&decodeURIComponent(m[1]);}}var p=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';var t=r()||p;d.setAttribute('data-theme',t);})();</script>
     <link rel="stylesheet" href="../estilo/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NBM6FZZ1V2"></script>
@@ -43,11 +44,11 @@
             </a>
             
             <nav class="nav">
-                <button class="menu-toggle" aria-label="Abrir menu">
+                <button class="menu-toggle" aria-label="Abrir menu" aria-controls="primary-nav" aria-expanded="false" aria-haspopup="true">
                     <i class="fas fa-bars"></i>
                 </button>
                 
-                <ul class="nav-list">
+                <ul class="nav-list" id="primary-nav">
                     <li><a href="../index.html">Home</a></li>
                     <li><a href="../templat/sobre.html">Sobre</a></li>
                     <li><a href="../templat/sistema.html">Sistema</a></li>

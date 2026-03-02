@@ -12,53 +12,76 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon.classList.toggle('fa-times');
                 icon.classList.toggle('fa-bars');
             }
+            const expanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', expanded ? 'false' : 'true');
         });
     }
     
-    // Alternar modo escuro com persistência no localStorage
+    const root = document.documentElement;
     const darkModeToggle = document.querySelector('.dark-mode-toggle');
-    const body = document.body;
-    
-    if (darkModeToggle && body) {
-        // Verificar preferência do usuário
-        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const currentTheme = localStorage.getItem('theme');
-        
-        if (currentTheme === 'dark' || (!currentTheme && prefersDarkMode)) {
-            body.setAttribute('data-theme', 'dark');
+    function readPref() {
+        try { return localStorage.getItem('theme'); } catch (e) {
+            const m = document.cookie.match(/(?:^|; )theme=([^;]+)/);
+            return m && decodeURIComponent(m[1]);
+        }
+    }
+    function writePref(val) {
+        try { localStorage.setItem('theme', val); } catch (e) {
+            document.cookie = 'theme=' + encodeURIComponent(val) + ';path=/;max-age=31536000';
+        }
+    }
+    function applyTheme(t) {
+        root.setAttribute('data-theme', t);
+        if (darkModeToggle) {
+            darkModeToggle.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
             const icon = darkModeToggle.querySelector('i');
             if (icon) {
-                icon.classList.add('fa-sun');
-                icon.classList.remove('fa-moon');
+                icon.classList.toggle('fa-sun', t === 'dark');
+                icon.classList.toggle('fa-moon', t !== 'dark');
             }
         }
-        
+    }
+    const stored = readPref();
+    const prefers = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    applyTheme(stored || prefers);
+    if (darkModeToggle) {
         darkModeToggle.addEventListener('click', function() {
-            const icon = this.querySelector('i');
-            if (body.getAttribute('data-theme') === 'dark') {
-                body.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
-                if (icon) {
-                    icon.classList.add('fa-moon');
-                    icon.classList.remove('fa-sun');
-                }
-            } else {
-                body.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-                if (icon) {
-                    icon.classList.add('fa-sun');
-                    icon.classList.remove('fa-moon');
-                }
-            }
-            
-            // Força o redesenho para garantir a transição suave (se necessário)
-            document.querySelectorAll('.logo-img').forEach(img => {
-                img.style.display = 'none';
-                setTimeout(() => {
-                    img.style.display = 'inline-block';
-                }, 15);
-            });
+            const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+            writePref(next);
         });
+    }
+    if (window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        const onChange = function(ev) {
+            const userSet = !!readPref();
+            if (!userSet) applyTheme(ev.matches ? 'dark' : 'light');
+        };
+        if (mq.addEventListener) mq.addEventListener('change', onChange);
+        else if (mq.addListener) mq.addListener(onChange);
+    }
+
+    if (new URLSearchParams(location.search).has('themeTest')) {
+        (function runThemeTests() {
+            const results = [];
+            function cssVar(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
+            const initial = root.getAttribute('data-theme');
+            const before = cssVar('--bg-color');
+            applyTheme(initial === 'dark' ? 'light' : 'dark');
+            const after = cssVar('--bg-color');
+            results.push({ test: 'CSS var change', ok: before !== after });
+            const lightLogo = document.querySelector('.light-logo');
+            const darkLogo = document.querySelector('.dark-logo');
+            if (lightLogo && darkLogo) {
+                const dl = getComputedStyle(darkLogo).display;
+                const ll = getComputedStyle(lightLogo).display;
+                results.push({ test: 'Logo visibility', ok: dl === 'inline-block' || ll === 'inline-block' });
+            } else {
+                results.push({ test: 'Logo presence', ok: !!(lightLogo && darkLogo) });
+            }
+            applyTheme(initial);
+            console.table(results);
+        })();
     }
     
     // Animações de entrada ao rolar a página
@@ -113,6 +136,90 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', toggleHeaderVisibility);
     window.addEventListener('resize', toggleHeaderVisibility);
     toggleHeaderVisibility();
+
+    function totalNavWidth() {
+        if (!navList) return 0;
+        let w = 0;
+        const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-gap')) || 0;
+        const items = Array.from(navList.children);
+        items.forEach((li, i) => { w += li.offsetWidth; if (i > 0) w += gap; });
+        return w;
+    }
+    function headerInnerWidth() {
+        if (!header) return window.innerWidth;
+        const c = header.querySelector('.container');
+        return c ? c.clientWidth : header.clientWidth;
+    }
+    function logoWidth() {
+        const logo = header && header.querySelector('.logo');
+        return logo ? logo.offsetWidth : 0;
+    }
+    function menuAvailableWidth() {
+        const pad = 64;
+        return headerInnerWidth() - logoWidth() - pad;
+    }
+    function setNavClass(cls) {
+        const nav = header && header.querySelector('.nav');
+        if (!nav) return;
+        nav.classList.remove('nav--normal','nav--compact','nav--tight','nav--collapsed');
+        nav.classList.add(cls);
+    }
+    function recalcNavLayout() {
+        if (!header || !navList) return;
+        const MOBILE_BP = 768;
+        if (window.innerWidth <= MOBILE_BP) {
+            setNavClass('nav--collapsed');
+            return;
+        }
+        document.documentElement.style.setProperty('--nav-gap','30px');
+        setNavClass('nav--normal');
+        const avail = menuAvailableWidth();
+        let width = totalNavWidth();
+        if (width <= avail) return;
+        document.documentElement.style.setProperty('--nav-gap','22px');
+        setNavClass('nav--compact');
+        width = totalNavWidth();
+        if (width <= avail) return;
+        document.documentElement.style.setProperty('--nav-gap','12px');
+        setNavClass('nav--tight');
+        width = totalNavWidth();
+        if (width <= avail) return;
+        setNavClass('nav--collapsed');
+    }
+    let rafId = null;
+    function scheduleRecalc() {
+        if (rafId) return;
+        rafId = requestAnimationFrame(() => { rafId = null; recalcNavLayout(); });
+    }
+    window.addEventListener('resize', scheduleRecalc);
+    if (window.ResizeObserver) {
+        const ro = new ResizeObserver(scheduleRecalc);
+        if (header) ro.observe(header);
+        if (navList) ro.observe(navList);
+    }
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(recalcNavLayout).catch(recalcNavLayout);
+    } else {
+        window.addEventListener('load', recalcNavLayout);
+    }
+    recalcNavLayout();
+
+    if (new URLSearchParams(location.search).has('menuTest')) {
+        const results = [];
+        document.documentElement.style.setProperty('--nav-gap','30px');
+        setNavClass('nav--normal');
+        results.push({state:'normal', fits: totalNavWidth() <= menuAvailableWidth()});
+        document.documentElement.style.setProperty('--nav-gap','22px');
+        setNavClass('nav--compact');
+        results.push({state:'compact', fits: totalNavWidth() <= menuAvailableWidth()});
+        document.documentElement.style.setProperty('--nav-gap','12px');
+        setNavClass('nav--tight');
+        results.push({state:'tight', fits: totalNavWidth() <= menuAvailableWidth()});
+        setNavClass('nav--collapsed');
+        results.push({state:'collapsed', menuToggleVisible: !!document.querySelector('.nav.nav--collapsed .menu-toggle')});
+        console.table(results);
+        recalcNavLayout();
+    }
     
     // Contador de clientes com IntersectionObserver
     const clientCount = document.querySelector('.count');
