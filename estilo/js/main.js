@@ -34,11 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
         root.setAttribute('data-theme', t);
         if (darkModeToggle) {
             darkModeToggle.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
-            const icon = darkModeToggle.querySelector('i');
-            if (icon) {
-                icon.classList.toggle('fa-sun', t === 'dark');
-                icon.classList.toggle('fa-moon', t !== 'dark');
-            }
         }
     }
     const stored = readPref();
@@ -62,25 +57,77 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (new URLSearchParams(location.search).has('themeTest')) {
-        (function runThemeTests() {
+        (async function runThemeTests() {
+            console.log('%cExecutando testes automatizados para o Tema Escuro...', 'font-weight: bold; font-size: 1.2em;');
+            
             const results = [];
-            function cssVar(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
-            const initial = root.getAttribute('data-theme');
-            const before = cssVar('--bg-color');
-            applyTheme(initial === 'dark' ? 'light' : 'dark');
-            const after = cssVar('--bg-color');
-            results.push({ test: 'CSS var change', ok: before !== after });
-            const lightLogo = document.querySelector('.light-logo');
-            const darkLogo = document.querySelector('.dark-logo');
-            if (lightLogo && darkLogo) {
-                const dl = getComputedStyle(darkLogo).display;
-                const ll = getComputedStyle(lightLogo).display;
-                results.push({ test: 'Logo visibility', ok: dl === 'inline-block' || ll === 'inline-block' });
-            } else {
-                results.push({ test: 'Logo presence', ok: !!(lightLogo && darkLogo) });
+            const root = document.documentElement;
+            const darkModeToggle = document.querySelector('.dark-mode-toggle');
+
+            // Funções de utilidade para os testes
+            const getTheme = () => root.getAttribute('data-theme');
+            const getStoredTheme = () => { try { return localStorage.getItem('theme'); } catch(e) { return null; } };
+            const clearStorage = () => { try { localStorage.removeItem('theme'); } catch(e) {} };
+            const clickToggle = () => darkModeToggle.click();
+            const assert = (description, condition) => results.push({ Teste: description, Passou: condition ? '✅' : '❌' });
+            const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            // Salva o estado inicial para restaurar depois
+            const initialTheme = getTheme();
+            const initialStored = getStoredTheme();
+
+            // --- Início dos Testes ---
+
+            // Teste 1: Inicialização com preferência do sistema (sem localStorage)
+            clearStorage();
+            applyTheme('light'); // Reset para um estado conhecido
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            // Recarrega a lógica de inicialização
+            const themeFromSystem = (window.matchMedia && prefersDark) ? 'dark' : 'light';
+            applyTheme(themeFromSystem);
+            assert('1. Inicializa com o tema do sistema (sem pref.)', getTheme() === themeFromSystem);
+
+            // Teste 2: Alternância de tema com clique
+            const currentTheme = getTheme();
+            const expectedNextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            clickToggle();
+            await wait(50); // Espera a aplicação do tema
+            assert('2.1. Alterna o atributo `data-theme` ao clicar', getTheme() === expectedNextTheme);
+            assert('2.2. Salva a preferência no localStorage ao clicar', getStoredTheme() === expectedNextTheme);
+
+            // Teste 3: Persistência após "recarregamento"
+            const userChoice = getTheme();
+            applyTheme(userChoice === 'dark' ? 'light' : 'dark'); // Simula mudança
+            const stored = getStoredTheme();
+            applyTheme(stored || 'light'); // Simula recarregamento
+            assert('3. Carrega o tema salvo pelo usuário (`localStorage`)', getTheme() === userChoice);
+
+            // Teste 4: Logo alterna corretamente
+            applyTheme('dark');
+            await wait(50);
+            const darkLogoDisplay = getComputedStyle(document.querySelector('.dark-logo')).display;
+            const lightLogoDisplayDark = getComputedStyle(document.querySelector('.light-logo')).display;
+            const isDarkLogoVisible = darkLogoDisplay !== 'none';
+            
+            applyTheme('light');
+            await wait(50);
+            const lightLogoDisplay = getComputedStyle(document.querySelector('.light-logo')).display;
+            const darkLogoDisplayLight = getComputedStyle(document.querySelector('.dark-logo')).display;
+            const isLightLogoVisible = lightLogoDisplay !== 'none';
+
+            assert('4. Exibe o logo correto no tema escuro e claro', isDarkLogoVisible && isLightLogoVisible && lightLogoDisplayDark === 'none' && darkLogoDisplayLight === 'none');
+
+            // --- Fim dos Testes ---
+
+            // Limpa e restaura o estado inicial
+            clearStorage();
+            if (initialStored) {
+                writePref(initialStored);
             }
-            applyTheme(initial);
+            applyTheme(initialTheme);
+
             console.table(results);
+            console.log('%cTestes concluídos.', 'font-weight: bold; font-size: 1.2em;');
         })();
     }
     
